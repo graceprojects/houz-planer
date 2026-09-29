@@ -1,9 +1,10 @@
+import type {OfficeProgramme,PlannedSpace} from './programmeTypes';
 export type Point={x:number;y:number};
 export type Wall={id:string;a:Point;b:Point;thickness:number;height:number;kind:'wall'|'glass';level:number;group?:string};
-export type Opening={id:string;wallId:string;offset:number;width:number;height:number;sill:number;kind:'door'|'window'|'opening';flip:boolean};
-export type Furniture={id:string;catalogId:string;name:string;kind:string;x:number;y:number;w:number;d:number;h:number;rotation:number;color:string;level:number;locked?:boolean;group?:string};
-export type RoomTag={id:string;x:number;y:number;name:string;color:string;level:number;notes:string};
-export type Project={schemaVersion:1;id:string;name:string;width:number;depth:number;height:number;wallThickness:number;mezzanine:{enabled:boolean;start:number;height:number};walls:Wall[];openings:Opening[];furniture:Furniture[];tags:RoomTag[];notes:string};
+export type Opening={id:string;wallId:string;offset:number;width:number;height:number;sill:number;kind:'door'|'window'|'opening';flip:boolean;style?:'single'|'double'|'sliding';material?:'solid'|'glass';panels?:number;name?:string};
+export type Furniture={id:string;catalogId:string;name:string;kind:string;x:number;y:number;w:number;d:number;h:number;rotation:number;color:string;level:number;locked?:boolean;group?:string;finish?:'original'|'oak'|'walnut'|'white'|'graphite';accessories?:boolean};
+export type RoomTag={id:string;x:number;y:number;name:string;color:string;level:number;notes:string;purposeId?:string};
+export type Project={schemaVersion:1;id:string;name:string;width:number;depth:number;height:number;wallThickness:number;mezzanine:{enabled:boolean;start:number;height:number};walls:Wall[];openings:Opening[];furniture:Furniture[];tags:RoomTag[];notes:string;programme?:OfficeProgramme;plannedSpaces?:PlannedSpace[]};
 export type CatalogItem={id:string;name:string;kind:string;category:string;w:number;d:number;h:number;color:string};
 export const COLORS=['#edf0e9','#e5ebf2','#e9e1d5','#e9dfe4','#d7e6e2','#e8e7ed','#f2e9d0','#c7d4de'];
 export const CATALOG:CatalogItem[]=[
@@ -28,7 +29,7 @@ export function shell(p:Project,level=0):Wall[]{const x=level?p.mezzanine.start:
  {id:`shell-${level}-left`,a:{x:x+t/2,y:t/2},b:{x:x+t/2,y:p.depth-t/2}},
  ].map(w=>({...w,kind:w.id.endsWith('bottom')?'glass':'wall',height:h,thickness:t,level} as Wall));}
 export function createDefault():Project{
- const p:Project={schemaVersion:1,id:'broadway-default',name:'BROADWAY · Офис продаж',width:40,depth:12,height:6.6,wallThickness:.25,mezzanine:{enabled:true,start:30,height:3.4},walls:[],openings:[],furniture:[],tags:[],notes:'Офис продаж 40 × 12 м. Длинный фасад вдоль дороги. Высота зала 6,6 м. Второй ярус в правом торце для бэк-офиса. Эскизное задание для проектировщика.'};
+ const p:Project={schemaVersion:1,id:'broadway-default',name:'HOUZ PLANER · Офис продаж',width:40,depth:12,height:6.6,wallThickness:.25,mezzanine:{enabled:true,start:30,height:3.4},walls:[],openings:[],furniture:[],tags:[],notes:'Офис продаж 40 × 12 м. Длинный фасад вдоль дороги. Высота зала 6,6 м. Второй ярус в правом торце для бэк-офиса. Эскизное задание для проектировщика.'};
  let count=0;
  const wall=(a:Point,b:Point,level=0,kind:'wall'|'glass'='wall',thickness=.15)=>{const w:Wall={id:'w'+(++count),a,b,level,kind,thickness,height:level?3.2:3.1};p.walls.push(w);return w.id};
  const wh=(x:number,x2:number,y:number,l=0,kind:'wall'|'glass'='wall')=>wall({x,y:12-y},{x:x2,y:12-y},l,kind);

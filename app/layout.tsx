@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BROADWAY · Планировщик офиса продаж",
+  title: "HOUZ PLANER · Планировщик пространства",
   description: "План офиса продаж с размерами, мебелью, 3D и экспликацией.",
   other: {
     "codex-preview": "development",
