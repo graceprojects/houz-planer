@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {createDefault,clone,wallLength} from '../app/planner/model';
+import {spaces,moveWall,resizeBuilding} from '../app/planner/geometry';
+import {projectSchema} from '../app/planner/validation';
+const close=(a:number,b:number)=>assert.ok(Math.abs(a-b)<1e-5,`${a} != ${b}`);
+const p=createDefault();assert.ok(projectSchema.safeParse(p).success);const rs=spaces(p,0);assert.equal(rs.length,17);assert.equal(spaces(p,1).length,7);
+const partition=p.walls.find(w=>w.a.x===4&&w.b.x===4)!;
+const moved=moveWall(p,partition.id,1),after=spaces(moved,0);close(after.find(r=>r.name==='Менеджер 1')!.area-rs.find(r=>r.name==='Менеджер 1')!.area,3.9);close(rs.find(r=>r.name==='Менеджер 2')!.area-after.find(r=>r.name==='Менеджер 2')!.area,3.9);
+const merged=clone(p);merged.walls=merged.walls.filter(w=>w.id!==partition.id);assert.equal(spaces(merged,0).length,16);
+const noDoors=clone(p);noDoors.openings=[];close(spaces(noDoors,0).reduce((a,r)=>a+r.area,0),rs.reduce((a,r)=>a+r.area,0));
+const blank=clone(p);blank.walls=[];blank.furniture=[];blank.tags=[];blank.openings=[];close(spaces(blank,0)[0].area,39.5*11.5);
+const pts=[{x:2,y:2},{x:6,y:2},{x:6,y:5},{x:2,y:5}];blank.walls=pts.map((a,i)=>({id:'test'+i,a,b:pts[(i+1)%4],thickness:.15,height:3,kind:'wall' as const,level:0}));const drawn=spaces(blank,0);assert.equal(drawn.length,2);close(Math.min(...drawn.map(r=>r.area)),3.85*2.85);
+const resized=resizeBuilding(p,44,14);assert.equal(resized.width,44);assert.equal(resized.depth,14);close(resized.furniture[0].w,p.furniture[0].w);close(resized.furniture[0].x,p.furniture[0].x*1.1);assert.ok(projectSchema.safeParse(resized).success);
+const invalid=clone(p);invalid.furniture[0].w=-2;assert.equal(projectSchema.safeParse(invalid).success,false);
+const diagonal=clone(p);diagonal.walls[0].b.y+=1;assert.equal(projectSchema.safeParse(diagonal).success,false);
+console.log(JSON.stringify({passed:9,initialRooms:rs.length,upperRooms:spaces(p,1).length,groundNet:rs.reduce((a,r)=>a+r.area,0),upperNet:spaces(p,1).reduce((a,r)=>a+r.area,0),furniture:p.furniture.length}));
