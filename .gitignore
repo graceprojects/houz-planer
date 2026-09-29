@@ -59,3 +59,5 @@ next-env.d.ts
 *.db-wal
 *.db-shm
 *.office.json
+
+/dist-pages/
